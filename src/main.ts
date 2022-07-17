@@ -5,6 +5,8 @@ import { rateLimit } from 'express-rate-limit';
 import 'dotenv/config'
 import { ValidationPipe } from '@nestjs/common';
 import { E_TOO_MANY_REQUESTS } from './common/exceptions';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { APP_DESCRIPTION, APP_NAME, APP_VERSION } from './common/constants';
 
 async function bootstrap() {
   // -- App Instantiation
@@ -38,6 +40,17 @@ async function bootstrap() {
       enableImplicitConversion: true,
     },
   }));
+
+  // -- Swagger setup
+  const config = new DocumentBuilder()
+    .setTitle(APP_NAME)
+    .setDescription(APP_DESCRIPTION)
+    .setVersion(APP_VERSION)
+    .addBearerAuth() // The API will use Bearer Authentication
+    .addBasicAuth({ type: 'apiKey', name: 'accessToken', in: 'query' }) // The API will use basic authentication for admin access
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   // -- Start listening
   await app.listen(process.env.PORT ? parseInt(process.env.PORT) : 3000);
