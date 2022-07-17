@@ -11,13 +11,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiBasicAuth,
   ApiNotAcceptableResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { User } from './models/user.model';
-import { E_PASSWORD_INCORRECT } from '../common/exceptions';
+import { E_PASSWORD_INCORRECT, E_TRANSACTION_NOT_FOUND, E_UNAUTHORIZED_ACCESS_TO_RESOURCE } from '../common/exceptions';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { UserAuthGuard } from '../auth/user-auth.guard';
+import { TransactionsService } from '../transactions/transactions.service';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(UserAuthGuard)
@@ -25,11 +28,20 @@ import { UserAuthGuard } from '../auth/user-auth.guard';
 @ApiBasicAuth()
 @Controller('account')
 export class AccountController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService, private readonly transactionsService: TransactionsService) {}
   @Get()
   @ApiOkResponse({ type: User })
   findOne(@CurrentUser() currentUser) : Promise<User> {
     return this.usersService.findOne(currentUser.id);
+  }
+
+
+  @Get('balance')
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ description: E_TRANSACTION_NOT_FOUND })
+  @ApiUnauthorizedResponse({ description: E_UNAUTHORIZED_ACCESS_TO_RESOURCE })
+  getAccountBalance(@CurrentUser() currentUser) : Promise<number> {
+    return this.transactionsService.getAccountBalance(currentUser.id);
   }
 
   @Patch('update-profile')
