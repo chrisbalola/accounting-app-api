@@ -22,7 +22,9 @@
     "migration:create": "ts-node ./node_modules/typeorm/cli.js migration:create src/database/migrations/$npm_config_name",
     "migration:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate -d src/database/datasource.ts src/database/migrations/$npm_config_name",
     "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run -d src/database/datasource.ts",
-    "migration:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert -d src/database/datasource.ts"
+    "migration:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert -d src/database/datasource.ts",
+    "preinstall": "rm -rf /dist",
+    "postinstall": "npm run build && npm run migration:run"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
