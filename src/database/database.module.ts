@@ -9,13 +9,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get('DB_HOST'),
-        port: configService.get('DB_PORT'),
-        username: configService.get('DB_USERNAME'),
-        password: configService.get('DB_PASSWORD'),
-        database: configService.get('DB_DATABASE'),
+        url: configService.get('DB_URL'),
         autoLoadEntities: true,
         synchronize: false,
+        migrationsRun: true, // Will run migrations every time the app starts
+        migrations: ['dist/database/migrations/*.js'], // Links to the migrations (in /dist because: after build)
         ...(configService.get('DB_SSL') ? {
           ssl: true,
           extra: {
