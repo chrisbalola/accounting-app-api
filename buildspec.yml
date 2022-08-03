@@ -1,0 +1,10 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - npm ci && npm run build # clean install (npm ci) and build (npm run build)
+
+artifacts:
+  files:
+    - '**/*'
